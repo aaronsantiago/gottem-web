@@ -58,20 +58,34 @@ function setup(){
     video.style.display = 'none';
 }
 
+var detected
+let detectedTime = 0;
+let lastTimeStamp = Date.now();
+
 function draw(){
     clear();
     image(handImg1, width/2, height/2, 500, 700)
-    if (bboxX > 460 && bboxX < 810 && bboxY > 92 && bboxY < 610 && detected){
-        textSize(32);
-        fill(255)
-        text('detecting...', 100, 100);
+    let deltaTime = Date.now() - lastTimeStamp;
+    lastTimeStamp = Date.now();
+    if (detected) {
+        detectedTime += deltaTime;
+    }
+    else {
+        detectedTime = 0;
+    }
+    console.log(detectedTime);
+    if (detectedTime > 1500) {
+        if (bboxX > 460 && bboxX < 810 && bboxY > 92 && bboxY < 610){
+            textSize(32);
+            fill(255)
+            text('detecting...', 100, 100);
+        }
     }
 }
 
-var detected
 function runDetection(){
     model.detect(video).then(predictions => {
-        console.log(predictions)
+        // console.log(predictions)
         model.renderPredictions(predictions, canvas, context, video)
         if(predictions.length > 0){
             //grab bounding box variables
