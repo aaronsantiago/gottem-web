@@ -55,7 +55,7 @@ function setup(){
     });
 
     //hide input camera
-    video.style.display = 'none';
+    video.style.transform = 'scaleX(-1)';
 }
 
 var detected
@@ -73,6 +73,9 @@ function draw(){
     else {
         detectedTime = 0;
     }
+    noFill();
+    rect(bboxX, bboxY, bboxW, bboxH);
+    rect(bboxX + bboxW/2 - 2, bboxY + bboxH/2 - 2, 4, 4);
     console.log(detectedTime);
     if (detectedTime > 1500) {
         if (bboxX > 460 && bboxX < 810 && bboxY > 92 && bboxY < 610){
@@ -86,7 +89,7 @@ function draw(){
 function runDetection(){
     model.detect(video).then(predictions => {
         // console.log(predictions)
-        model.renderPredictions(predictions, canvas, context, video)
+        // model.renderPredictions(predictions, canvas, context, video)
         if(predictions.length > 0){
             //grab bounding box variables
             detected = true;
