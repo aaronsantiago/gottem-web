@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="mqtt.min.js"></script>
+  <style>
+      body {
+          background: #222;
+          font-family: sans-serif;
+          color: #DDD;
+      }
+      input, button {
+        background: #333;
+        color: #DDD;
+        border: none;
+        font-size: 2em;
+      }
+
+      button {
+        background: #444;
+        border-radius: .2em;
+        font-size: 1.5em;
+      }
+
+      .message {
+          background: #444;
+          list-style: none;
+          margin: 10px 0;
+          overflow: hidden;
+          padding: 5px;
+          box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+          border-radius: 2px;
+      }
+      .message-list {
+          padding-left: 0;
+      }
+      .message__name {
+          font-weight: bold;
+      }
+      .message__text {
+          margin: 5px 0;
+      }
+  </style>
+</head>
+
+<body>
+  <p>what name?</p>
+  <input id="sendToGroup" type="text" placeholder="elbow" class="post-field">
+  <p>what value?</p>
+  <input id="myGroups" type="text" placeholder="2" class="post-field">
+  <button class="submit-button">send kindness!</button>
+  <ul class="message-list"></ul>
+
+<script>
+let client = mqtt.connect('wss://b11edbdc:ba2b56875ff12d8c@broker.shiftr.io', {
+  clientId: 'javascript'
+});
+
+// Connect to the shiftr server
+client.on('connect', function(){
+  console.log('client has connected!');
+
+  // Setup our group subscription system
+
+  const groupListElement = document.querySelector('#myGroups');
+    
+  // keep track of the groups we are subscribed to so
+  // we can unsubscribe when the list is updated
+  let subscribedGroups = [];
+  let resubscribeGroups = function() {
+    console.log("resubscribing");
+
+    // get the list of groups from the element on the page.
+    // default to "everyone"
+    let groupListString = "test";
+    client.subscribe('/pork/test/test');
+  }
+
+  // subscribe to whatever groups you already had in the text box
+  resubscribeGroups();
+
+});
+
+// Get the sending-related elements from the DOM
+const groupToSendToElement = document.querySelector('#sendToGroup');
+const sendButtonElement = document.querySelector('.submit-button');
+
+// Send kindness to the group you chose when you click the submit
+// button or when you press the enter key.
+let submitMessage = (e) => {
+  // get the group from the element on the page.
+  // default to "everyone"
+  let groupListString = groupToSendToElement.value || "elbow";
+  const groupListElement = document.querySelector('#myGroups');
+  let string2 = groupListElement.value || "2";
+
+  let finalString = groupListString + ":" + string2;
+  console.log("sending message: " + finalString);
+  client.publish('/pork/test/test', finalString);
+};
+groupToSendToElement.onkeydown = function(e){
+  if(e.keyCode == 13){
+    submitMessage();
+  }
+};
+
+
+const messageListElement = document.querySelector('.message-list');
+client.on('message', function(topic, message) {
+  console.log('new message:', topic, message.toString());
+
+  //create the message element and add it to the DOM
+  const messageElement = document.createElement('li');
+  messageElement.className = 'message';
+
+  const nameElement = document.createElement('span');
+  nameElement.textContent = topic;
+  nameElement.className = 'message__name';
+  messageElement.appendChild(nameElement);
+
+  const textElement = document.createElement('p');
+  textElement.textContent = message;
+  textElement.className = 'message__text';
+  messageElement.appendChild(textElement);
+
+  messageListElement.appendChild(messageElement);
+});
+
+sendButtonElement.addEventListener('click', submitMessage)
+</script>
+
+
+</body>
+</html>
+
