@@ -69,13 +69,13 @@ function draw(){
     lastTimeStamp = Date.now();
     if (detected) {
         detectedTime += deltaTime;
+        rect(bboxX, bboxY, bboxW, bboxH);
+        rect(bboxX + bboxW/2 - 2, bboxY + bboxH/2 - 2, 4, 4); 
     }
     else {
         detectedTime = 0;
     }
     noFill();
-    rect(bboxX, bboxY, bboxW, bboxH);
-    rect(bboxX + bboxW/2 - 2, bboxY + bboxH/2 - 2, 4, 4);
     console.log(detectedTime);
     if (detectedTime > 1500) {
         if (bboxX > 460 && bboxX < 810 && bboxY > 92 && bboxY < 610){
