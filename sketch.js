@@ -62,15 +62,20 @@ var detected
 let detectedTime = 0;
 let lastTimeStamp = Date.now();
 
+let detectedDebounceFrames = 2;
+let detectedDebounceCounter = 0;
+
+let debouncedDetected = false;
+
 function draw(){
     clear();
     image(handImg1, width/2, height/2, 500, 700)
     let deltaTime = Date.now() - lastTimeStamp;
     lastTimeStamp = Date.now();
-    if (detected) {
+    if (debouncedDetected) {
         detectedTime += deltaTime;
         rect(bboxX, bboxY, bboxW, bboxH);
-        rect(bboxX + bboxW/2 - 2, bboxY + bboxH/2 - 2, 4, 4); 
+        rect(bboxX + bboxW/2 - 2, bboxY + bboxH/2 - 2, 4, 4);
     }
     else {
         detectedTime = 0;
@@ -78,7 +83,7 @@ function draw(){
     noFill();
     console.log(detectedTime);
     if (detectedTime > 1500) {
-        if (bboxX > 460 && bboxX < 810 && bboxY > 92 && bboxY < 610){
+        if (bboxX > 360 && bboxX < 710 && bboxY > 92 && bboxY < 610){
             textSize(32);
             fill(255)
             text('detecting...', 100, 100);
@@ -105,4 +110,13 @@ function runDetection(){
             detected = false;
         }
     });
+    if (!detected) {
+        if (detectedDebounceCounter++ > detectedDebounceFrames) {
+            debouncedDetected = false;
+        }
+    }
+    else {
+        debouncedDetected = true;
+        detectedDebounceCounter = 0;
+    }
 }
