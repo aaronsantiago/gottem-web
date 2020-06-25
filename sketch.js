@@ -1,3 +1,23 @@
+// configurable parameters
+let detectedDebounceFrames = 2;
+
+let beginMovementMs = 1500;
+let beginGottemMs = 5000;
+
+let beginMovementMessage = "arm:extend";
+let revertMovementMessage = "arm:flex";
+let gottemMovementMessage = "hand:rotate";
+
+let state = 0;
+let NEUTRAL = 0;
+let EXTEND = 1;
+let GOTTEM = 2;
+
+let client = mqtt.connect('wss://b11edbdc:ba2b56875ff12d8c@broker.shiftr.io', {
+  clientId: 'javascript'
+});
+
+
 //Hand Detection Parameters
 const modelParams = {
     flipHorizontal: true,   // flip e.g for video 
@@ -24,6 +44,9 @@ var bboxH
 
 //Image
 var handImg1
+
+
+let lastMessageTime = Date.now();
 
 //preload Image in p5.js
 function preload(){
@@ -62,7 +85,6 @@ var detected
 let detectedTime = 0;
 let lastTimeStamp = Date.now();
 
-let detectedDebounceFrames = 2;
 let detectedDebounceCounter = 0;
 
 let debouncedDetected = false;
@@ -81,13 +103,28 @@ function draw(){
         detectedTime = 0;
     }
     noFill();
-    console.log(detectedTime);
+
     if (detectedTime > 1500) {
-        if (bboxX > 360 && bboxX < 710 && bboxY > 92 && bboxY < 610){
+        if (state == NEUTRAL) {
+            console.log("sending extend");
+            client.publish('/pork/test/test', beginMovementMessage);
+            state = EXTEND;
+        }
+        if (bboxX > 360 && bboxX < 710 && bboxY > 2 && bboxY < 610){
             textSize(32);
             fill(255)
             text('detecting...', 100, 100);
         }
+    }
+    else if (state != NEUTRAL) {
+        console.log("sending flex");
+        client.publish('/pork/test/test', revertMovementMessage);
+        state = NEUTRAL;
+    }
+    if (detectedTime > 5000 && state != GOTTEM) {
+        console.log("sending rotate");
+        client.publish('/pork/test/test', gottemMovementMessage);
+        state = GOTTEM;
     }
 }
 
