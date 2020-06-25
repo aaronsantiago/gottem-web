@@ -2,7 +2,7 @@
 let detectedDebounceFrames = 2;
 
 let beginMovementMs = 1500;
-let beginGottemMs = 5000;
+let beginGottemMs = 7000;
 
 let beginMovementMessage = "arm:extend";
 let revertMovementMessage = "arm:flex";
@@ -91,7 +91,7 @@ let debouncedDetected = false;
 
 function draw(){
     clear();
-    image(handImg1, width/2, height/2, 500, 700)
+    image(handImg1, width - 250, height - 350, 500, 700)
     let deltaTime = Date.now() - lastTimeStamp;
     lastTimeStamp = Date.now();
     if (debouncedDetected) {
@@ -110,7 +110,7 @@ function draw(){
             client.publish('/pork/test/test', beginMovementMessage);
             state = EXTEND;
         }
-        if (bboxX > 360 && bboxX < 710 && bboxY > 2 && bboxY < 610){
+        if (bboxX > width - 500 && width && bboxY > 2 && bboxY < 610){
             textSize(32);
             fill(255)
             text('detecting...', 100, 100);
